@@ -431,6 +431,7 @@ let spawnBrowser = (name: string, browserPath: string, profilePath: string, url:
     '--hide-crash-restore-bubble',
     '--disable-sync',
     `--no-default-browser-check`,
+    `${url}`
   ]
 
   let chrome = spawn(

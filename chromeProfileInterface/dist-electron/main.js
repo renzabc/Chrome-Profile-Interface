@@ -245,7 +245,8 @@ let spawnBrowser = (name, browserPath, profilePath, url) => {
     "--no-first-run",
     "--hide-crash-restore-bubble",
     "--disable-sync",
-    `--no-default-browser-check`
+    `--no-default-browser-check`,
+    `${url}`
   ];
   let chrome = spawn(
     path.join(browserPath),
