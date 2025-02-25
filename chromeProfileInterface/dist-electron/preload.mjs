@@ -65,6 +65,17 @@ electron.contextBridge.exposeInMainWorld("system", {
     return r;
   }
 });
+electron.contextBridge.exposeInMainWorld(`thiswindow`, {
+  minimize: async () => {
+    electron.ipcRenderer.invoke("minimize-window");
+  },
+  maximize: async () => {
+    electron.ipcRenderer.invoke("maximize-window");
+  },
+  close: async () => {
+    electron.ipcRenderer.invoke("close-window");
+  }
+});
 electron.contextBridge.exposeInMainWorld("tasks", {
   manualBrowser: async (url, browserPath, profilePath, profileNum) => {
     let r = electron.ipcRenderer.invoke("manual-browser", url, browserPath, profilePath, profileNum);

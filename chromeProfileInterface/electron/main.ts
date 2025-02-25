@@ -75,6 +75,25 @@ app.on('activate', () => {
 app.whenReady().then(createWindow)
 
 
+ipcMain.handle('minimize-window', () => {
+  if (win) {
+    win.minimize();
+  }
+});
+ipcMain.handle('maximize-window', () => {
+  if (win) {
+    if (win.isMaximized()) {
+      win.unmaximize();
+    } else {
+      win.maximize();
+    }
+  }
+});
+ipcMain.handle('close-window', () => {
+  if (win) {
+    win.close();
+  }
+});
 
 
 
@@ -423,7 +442,11 @@ class launchBrowser {
 
 let spawnBrowser = (name: string, browserPath: string, profilePath: string, url: string) => {
   // let browserPathArray = browserPath.split("\")
-  console.log('browserPath: ', browserPath)
+
+  if (!url.includes('.')) {
+    url = 'chrome:newtab'
+  }
+
   let flags = [
     `--user-data-dir=${profilePath}\\${name}\\Default`, //NIKE,
     '--disable-popup-blocking',

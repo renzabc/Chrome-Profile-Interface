@@ -186,7 +186,7 @@ function App() {
           onClick={async (pid: number) => {
             try {
               await tasks.killBrowsers(profile.pid)
-            } catch (error) {}
+            } catch (error) { }
           }}
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
@@ -235,7 +235,9 @@ function App() {
           </button>
 
           {/* minimize */}
-          <button className=''>
+          <button className=''
+            onClick={() => { thiswindow.minimize() }}
+          >
             <svg className='fill-neutral-200 hover:fill-green-500' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
               <path d="M3 16m0 1a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v3a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1z"></path>
               <path d="M4 12v-6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-6"></path>
@@ -245,7 +247,9 @@ function App() {
           </button>
 
           {/* maximize */}
-          <button className=''>
+          <button className=''
+            onClick={() => { thiswindow.maximize() }}
+          >
             <svg className='fill-neutral-200 hover:fill-yellow-500' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
               <path d="M3 16m0 1a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v3a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1z"></path>
               <path d="M4 12v-6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-6"></path>
@@ -255,7 +259,9 @@ function App() {
           </button>
 
           {/* close */}
-          <button className=''>
+          <button className=''
+            onClick={() => { thiswindow.close() }}
+          >
             <svg className='fill-neutral-200 hover:fill-red-500' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
               <path d="M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14z"></path>
               <path d="M9 9l6 6m0 -6l-6 6"></path>

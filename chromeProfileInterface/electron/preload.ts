@@ -74,6 +74,18 @@ contextBridge.exposeInMainWorld('system', {
   }
 })
 
+contextBridge.exposeInMainWorld(`thiswindow`, {
+  minimize: async () => {
+    ipcRenderer.invoke('minimize-window')
+  },
+  maximize: async () => {
+    ipcRenderer.invoke('maximize-window')
+  },
+  close: async () => {
+    ipcRenderer.invoke('close-window')
+  }
+})
+
 contextBridge.exposeInMainWorld('tasks', {
   manualBrowser: async (url: string, browserPath: string, profilePath: string, profileNum: string) => {
     let r = ipcRenderer.invoke('manual-browser', url, browserPath, profilePath, profileNum)

@@ -46,6 +46,25 @@ app.on("activate", () => {
   }
 });
 app.whenReady().then(createWindow);
+ipcMain.handle("minimize-window", () => {
+  if (win) {
+    win.minimize();
+  }
+});
+ipcMain.handle("maximize-window", () => {
+  if (win) {
+    if (win.isMaximized()) {
+      win.unmaximize();
+    } else {
+      win.maximize();
+    }
+  }
+});
+ipcMain.handle("close-window", () => {
+  if (win) {
+    win.close();
+  }
+});
 const readSettings = async (event) => {
   let text = void 0;
   try {
@@ -237,7 +256,9 @@ class launchBrowser {
   }
 }
 let spawnBrowser = (name, browserPath, profilePath, url) => {
-  console.log("browserPath: ", browserPath);
+  if (!url.includes(".")) {
+    url = "chrome:newtab";
+  }
   let flags = [
     `--user-data-dir=${profilePath}\\${name}\\Default`,
     //NIKE,
