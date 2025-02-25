@@ -1,4 +1,4 @@
-import { ReactElement, useState } from 'react'
+import { ChangeEvent, ReactElement, useState } from 'react'
 import './App.css'
 
 function App() {
@@ -8,49 +8,104 @@ function App() {
     icon: ReactElement;
     exePath: string;
     folderPath: string;
+    pid: number;
   }
 
+  const [availableNumbers, setAvailableNumbers] = useState<Set<number>>(new Set())
   const [browserArray, setBrowserArray] = useState([{ name: 'chrome' }])
   const [profileArray, setProfileArray] = useState<Profile[]>([])
+  const [launchUrl, setLaunchUrl] = useState('')
+
+  const getSmallestNumber = (): number => {
+    if (availableNumbers.size > 0) {
+      let min = Math.min(...Array.from(availableNumbers))
+      availableNumbers.delete(min)
+      setAvailableNumbers(new Set(availableNumbers))
+      return min
+    }
+    return profileArray.length > 0 ? profileArray.length + 1 : 1
+  }
+
+  // const chromeIcon = (
+
+  // )
+
+
+  let icon = (height: number, width: number, type: string) => {
+    if (type == 'chrome') {
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" height={`${String(height)}`} width={`${String(width)}`} stroke-width="2">
+          <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path>
+          <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
+          <path d="M12 9h8.4"></path>
+          <path d="M14.598 13.5l-4.2 7.275"></path>
+          <path d="M9.402 13.5l-4.2 -7.275"></path>
+        </svg>
+      )
+    }
+    else if (type == 'edge') {
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" height={`${String(height)}`} width={`${String(width)}`} stroke-width="2">
+          <path d="M20.978 11.372a9 9 0 1 0 -1.593 5.773"></path>
+          <path d="M20.978 11.372c.21 2.993 -5.034 2.413 -6.913 1.486c1.392 -1.6 .402 -4.038 -2.274 -3.851c-1.745 .122 -2.927 1.157 -2.784 3.202c.28 3.99 4.444 6.205 10.36 4.79"></path>
+          <path d="M3.022 12.628c-.283 -4.043 8.717 -7.228 11.248 -2.688"></path>
+          <path d="M12.628 20.978c-2.993 .21 -5.162 -4.725 -3.567 -9.748"></path>
+        </svg>
+      )
+    }
+    else if (type = 'brave') {
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" height={`${String(height)}`} width={`${String(width)}`} stroke-width="2">
+          <path d="M20 3v10a8 8 0 1 1 -16 0v-10l3.432 3.432a7.963 7.963 0 0 1 4.568 -1.432c1.769 0 3.403 .574 4.728 1.546l3.272 -3.546z"></path>
+          <path d="M2 16h5l-4 4"></path>
+          <path d="M22 16h-5l4 4"></path>
+          <path d="M12 16m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+          <path d="M9 11v.01"></path>
+          <path d="M15 11v.01"></path>
+        </svg>
+      )
+    }
+    return (<></>)
+  }
+
 
   // Logic for addimg browser profiles
   let handleAddProfile = async (browserType: string) => {
     setProfileArray(prevArray => {
+      let number = getSmallestNumber()
       let newProfile: Profile = {
         name: '',
         icon: <></>,
         exePath: '',
-        folderPath: ''
+        folderPath: '',
+        pid: 0
       }
       if (browserType == 'chrome') {
         newProfile = {
-          name: String(prevArray.length),
-          icon: (
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" height="15" width="20">
-              <defs>
-                <linearGradient id="a" x1="3.2173" y1="15" x2="44.7812" y2="15" gradientUnits="userSpaceOnUse">
-                  <stop offset="0" stop-color="#d93025" />
-                  <stop offset="1" stop-color="#ea4335" />
-                </linearGradient>
-                <linearGradient id="b" x1="20.7219" y1="47.6791" x2="41.5039" y2="11.6837" gradientUnits="userSpaceOnUse">
-                  <stop offset="0" stop-color="#fcc934" />
-                  <stop offset="1" stop-color="#fbbc04" />
-                </linearGradient>
-                <linearGradient id="c" x1="26.5981" y1="46.5015" x2="5.8161" y2="10.506" gradientUnits="userSpaceOnUse">
-                  <stop offset="0" stop-color="#1e8e3e" />
-                  <stop offset="1" stop-color="#34a853" />
-                </linearGradient>
-              </defs>
-              <circle className='fill-white' cx="24" cy="23.9947" r="12" />
-              <path d="M3.2154,36A24,24,0,1,0,12,3.2154,24,24,0,0,0,3.2154,36ZM34.3923,18A12,12,0,1,1,18,13.6077,12,12,0,0,1,34.3923,18Z" className='fill-white' />
-              <path d="M24,12H44.7812a23.9939,23.9939,0,0,0-41.5639.0029L13.6079,30l.0093-.0024A11.9852,11.9852,0,0,1,24,12Z" className='fill-red-500' />
-              <circle cx="24" cy="24" r="9.5" className='fill-blue-500' />
-              <path d="M34.3913,30.0029,24.0007,48A23.994,23.994,0,0,0,44.78,12.0031H23.9989l-.0025.0093A11.985,11.985,0,0,1,34.3913,30.0029Z" className='fill-yellow-500' />
-              <path d="M13.6086,30.0031,3.218,12.006A23.994,23.994,0,0,0,24.0025,48L34.3931,30.0029l-.0067-.0068a11.9852,11.9852,0,0,1-20.7778.007Z" className='fill-green-500' />
-            </svg>
-          ),
-          exePath: 'C:\Program Files\Google\Chrome\Application\chrome.exe',
-          folderPath: ''
+          name: String(number),
+          icon: icon(100, 100, browserType),
+          exePath: String.raw`C:\Program Files\Google\Chrome\Application\chrome.exe`.replace("\\", "\\\\"),
+          folderPath: String.raw`C:\Users\Renz\Desktop\Test Folder`,
+          pid: 0
+        }
+        console.log("exePath: ", newProfile.exePath)
+      }
+      else if (browserType == 'edge') {
+        newProfile = {
+          name: String(number),
+          icon: icon(100, 100, browserType),
+          exePath: String.raw`C:\Program Files\Google\Chrome\Application\chrome.exe`,
+          folderPath: String.raw`C:\Users\Renz\Desktop\Test Folder`,
+          pid: 0
+        }
+      }
+      else if (browserType == 'brave') {
+        newProfile = {
+          name: String(number),
+          icon: icon(100, 100, browserType),
+          exePath: String.raw``,
+          folderPath: String.raw`C:\Users\Renz\Desktop\Test Folder`,
+          pid: 0
         }
       }
       return [...prevArray, newProfile]
@@ -60,32 +115,39 @@ function App() {
   let browserButtons = browserArray.map((browser) => {
     if (browser.name == 'chrome') {
       return (
-        <button className='p-1 flex flex-row bg-white hover:bg-green-100 rounded-lg'
+        <button title='Create Chrome Profile' className='p-1 flex flex-row bg-white hover:bg-green-100 rounded-lg'
           onClick={() => handleAddProfile('chrome')}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" height="15" width="20">
-            <defs>
-              <linearGradient id="a" x1="3.2173" y1="15" x2="44.7812" y2="15" gradientUnits="userSpaceOnUse">
-                <stop offset="0" stop-color="#d93025" />
-                <stop offset="1" stop-color="#ea4335" />
-              </linearGradient>
-              <linearGradient id="b" x1="20.7219" y1="47.6791" x2="41.5039" y2="11.6837" gradientUnits="userSpaceOnUse">
-                <stop offset="0" stop-color="#fcc934" />
-                <stop offset="1" stop-color="#fbbc04" />
-              </linearGradient>
-              <linearGradient id="c" x1="26.5981" y1="46.5015" x2="5.8161" y2="10.506" gradientUnits="userSpaceOnUse">
-                <stop offset="0" stop-color="#1e8e3e" />
-                <stop offset="1" stop-color="#34a853" />
-              </linearGradient>
-            </defs>
-            <circle className='fill-white' cx="24" cy="23.9947" r="12" />
-            <path d="M3.2154,36A24,24,0,1,0,12,3.2154,24,24,0,0,0,3.2154,36ZM34.3923,18A12,12,0,1,1,18,13.6077,12,12,0,0,1,34.3923,18Z" className='fill-white' />
-            <path d="M24,12H44.7812a23.9939,23.9939,0,0,0-41.5639.0029L13.6079,30l.0093-.0024A11.9852,11.9852,0,0,1,24,12Z" className='fill-red-500' />
-            <circle cx="24" cy="24" r="9.5" className='fill-blue-500' />
-            <path d="M34.3913,30.0029,24.0007,48A23.994,23.994,0,0,0,44.78,12.0031H23.9989l-.0025.0093A11.985,11.985,0,0,1,34.3913,30.0029Z" className='fill-yellow-500' />
-            <path d="M13.6086,30.0031,3.218,12.006A23.994,23.994,0,0,0,24.0025,48L34.3931,30.0029l-.0067-.0068a11.9852,11.9852,0,0,1-20.7778.007Z" className='fill-green-500' />
+          {icon(22, 22, 'chrome')}
+          <svg className="fill-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="22" fill="none" viewBox="3 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5" />
           </svg>
-          <svg className="fill-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24">
+
+        </button>
+
+      )
+    }
+    else if (browser.name == 'edge') {
+      return (
+        <button title='Create Edge Profile' className='p-1 flex flex-row bg-white hover:bg-green-100 rounded-lg'
+          onClick={() => handleAddProfile('edge')}
+        >
+          {icon(22, 22, 'edge')}
+          <svg className="fill-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="22" fill="none" viewBox="3 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5" />
+          </svg>
+
+        </button>
+
+      )
+    }
+    else if (browser.name == 'brave') {
+      return (
+        <button title='Create Edge Profile' className='p-1 flex flex-row bg-white hover:bg-green-100 rounded-lg'
+          onClick={() => handleAddProfile('brave')}
+        >
+          {icon(22, 22, 'brave')}
+          <svg className="fill-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="22" fill="none" viewBox="3 0 24 24">
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5" />
           </svg>
 
@@ -98,13 +160,60 @@ function App() {
 
 
   let profileCards = profileArray.map((profile) => (
-    <div className='bg-white h-[60px] w-[50px]'>
-      {profile.name}
+    <div className=' flex flex-col bg-white h-[160px] w-[100px] rounded-lg border'>
+      <div className='flex justify-center'>
+        {profile.icon}
+      </div>
+
+      <div className='flex justify-center'>
+        Profile {profile.name}
+      </div>
+
+      <div className='flex flex-row justify-between p-1'>
+        <button title='Delete Profile'
+
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
+            <path d="M4 7l16 0"></path>
+            <path d="M10 11l0 6"></path>
+            <path d="M14 11l0 6"></path>
+            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+          </svg>
+        </button>
+
+        <button title='Kill Process'
+          onClick={async (pid: number) => {
+            try {
+              await tasks.killBrowsers(profile.pid)
+            } catch (error) {
+
+            }
+          }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
+            <path d="M5 5m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z"></path>
+          </svg>
+        </button>
+
+        <button title='Launch Browser'
+          onClick={async () => { profile.pid = await tasks.manualBrowser(launchUrl, profile.exePath, profile.folderPath, profile.name); console.log(profile.pid) }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
+            <path d="M7 4v16l13 -8z"></path>
+          </svg>
+        </button>
+      </div>
     </div>
   ))
 
 
-
+  const handleUrlChange = (e: ChangeEvent<HTMLInputElement>, inputElement: string) => {
+    const { target } = e
+    if (inputElement == 'url') {
+      setLaunchUrl(target.value)
+    }
+  }
 
   return (
     <>
@@ -156,8 +265,19 @@ function App() {
           </button>
         </div>
 
+        {/* Url bar */}
+        <div className="relative w-full bg-neutral-200 px-1 ">
+          <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+            <svg className="w-6 h-6 text-gray-800 dark:text-white mt-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+              <path fill-rule="evenodd" d="M8.64 4.737A7.97 7.97 0 0 1 12 4a7.997 7.997 0 0 1 6.933 4.006h-.738c-.65 0-1.177.25-1.177.9 0 .33 0 2.04-2.026 2.008-1.972 0-1.972-1.732-1.972-2.008 0-1.429-.787-1.65-1.752-1.923-.374-.105-.774-.218-1.166-.411-1.004-.497-1.347-1.183-1.461-1.835ZM6 4a10.06 10.06 0 0 0-2.812 3.27A9.956 9.956 0 0 0 2 12c0 5.289 4.106 9.619 9.304 9.976l.054.004a10.12 10.12 0 0 0 1.155.007h.002a10.024 10.024 0 0 0 1.5-.19 9.925 9.925 0 0 0 2.259-.754 10.041 10.041 0 0 0 4.987-5.263A9.917 9.917 0 0 0 22 12a10.025 10.025 0 0 0-.315-2.5A10.001 10.001 0 0 0 12 2a9.964 9.964 0 0 0-6 2Zm13.372 11.113a2.575 2.575 0 0 0-.75-.112h-.217A3.405 3.405 0 0 0 15 18.405v1.014a8.027 8.027 0 0 0 4.372-4.307ZM12.114 20H12A8 8 0 0 1 5.1 7.95c.95.541 1.421 1.537 1.835 2.415.209.441.403.853.637 1.162.54.712 1.063 1.019 1.591 1.328.52.305 1.047.613 1.6 1.316 1.44 1.825 1.419 4.366 1.35 5.828Z" clip-rule="evenodd" />
+            </svg>
+
+          </div>
+          <input type="text" id="simple-search" value={launchUrl} onChange={(e) => { handleUrlChange(e, 'url') }} className="mt-1.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter Initial Launch URL" />
+        </div>
+
         {/* Profiles Container */}
-        <div className='flex flex-wrap content-start bg-neutral-200 h-[calc(100vh-31px)] w-[] p-4 gap-4 overflow-auto '>
+        <div className='flex flex-wrap content-start bg-neutral-200 h-[calc(100vh-86px)] w-[] p-2 gap-2 overflow-auto '>
           {profileCards}
         </div>
       </div>
