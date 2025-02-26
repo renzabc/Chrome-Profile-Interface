@@ -252,53 +252,55 @@ function App() {
         {/* Title Bar */}
         <div className='titleBar flex flex-row gap-1 justify-end bg-neutral-800 '>
           {/* Add Browser Profile Button(s) */}
-          <div className='flex flex-row gap-1 p-1'>
+          <div className='flex flex-row gap-1 p-1 ml-0.5'>
             {browserButtons}
           </div>
           <div className='flex grow justify-center'>
             <h1 className='text-white'>Profile Interface</h1>
           </div>
           {/* settings button */}
-          <button className=''>
+          {/* <button className=''>
             <svg className='fill-neutral-200 hover:fill-sky-500' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
               <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"></path>
               <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"></path>
             </svg>
-          </button>
+          </button> */}
 
-          {/* minimize */}
-          <button className=''
-            onClick={() => { thiswindow.minimize() }}
-          >
-            <svg className='fill-neutral-200 hover:fill-green-500' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
-              <path d="M3 16m0 1a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v3a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1z"></path>
-              <path d="M4 12v-6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-6"></path>
-              <path d="M15 13h-4v-4"></path>
-              <path d="M11 13l5 -5"></path>
-            </svg>
-          </button>
+          <div className='flex gap-2.5 mr-1'>
+            {/* minimize */}
+            <button className=''
+              onClick={() => { thiswindow.minimize() }}
+            >
+              <svg className='fill-neutral-200 hover:fill-green-500' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
+                <path d="M3 16m0 1a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v3a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1z"></path>
+                <path d="M4 12v-6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-6"></path>
+                <path d="M15 13h-4v-4"></path>
+                <path d="M11 13l5 -5"></path>
+              </svg>
+            </button>
 
-          {/* maximize */}
-          <button className=''
-            onClick={() => { thiswindow.maximize() }}
-          >
-            <svg className='fill-neutral-200 hover:fill-yellow-500' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
-              <path d="M3 16m0 1a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v3a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1z"></path>
-              <path d="M4 12v-6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-6"></path>
-              <path d="M12 8h4v4"></path>
-              <path d="M16 8l-5 5"></path>
-            </svg>
-          </button>
+            {/* maximize */}
+            <button className=''
+              onClick={() => { thiswindow.maximize() }}
+            >
+              <svg className='fill-neutral-200 hover:fill-yellow-500' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
+                <path d="M3 16m0 1a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v3a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1z"></path>
+                <path d="M4 12v-6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-6"></path>
+                <path d="M12 8h4v4"></path>
+                <path d="M16 8l-5 5"></path>
+              </svg>
+            </button>
 
-          {/* close */}
-          <button className=''
-            onClick={() => { thiswindow.close() }}
-          >
-            <svg className='fill-neutral-200 hover:fill-red-500' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
-              <path d="M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14z"></path>
-              <path d="M9 9l6 6m0 -6l-6 6"></path>
-            </svg>
-          </button>
+            {/* close */}
+            <button className=''
+              onClick={() => { thiswindow.close() }}
+            >
+              <svg className='fill-neutral-200 hover:fill-red-500' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
+                <path d="M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14z"></path>
+                <path d="M9 9l6 6m0 -6l-6 6"></path>
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Url bar */}
