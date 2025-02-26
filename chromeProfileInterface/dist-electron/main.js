@@ -6,6 +6,7 @@ import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { execSync, spawn } from "node:child_process";
+import fs from "fs";
 createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 process.env.APP_ROOT = path.join(__dirname, "..");
@@ -16,6 +17,8 @@ process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 
 let win;
 function createWindow() {
   win = new BrowserWindow({
+    minHeight: 256,
+    minWidth: 390,
     width: 800,
     height: 600,
     frame: false,
@@ -181,64 +184,6 @@ const openFolder = async (event, directory, master) => {
   }
   event.sender.send(`OPEN_FOLDER`);
 };
-const readProxyList = async (event) => {
-  let text = void 0;
-  try {
-    text = await fs.promises.readFile("proxies.txt", "utf8");
-  } catch (error) {
-    try {
-      fs.writeFile("proxies.txt", "", (err) => {
-      });
-      event.sender.send(`READ_PROXY_LIST`, "0");
-    } catch (error2) {
-    }
-  }
-  event.sender.send(`READ_PROXY_LIST`, text);
-  return text;
-};
-const saveProxyList = async (event, text) => {
-  try {
-    fs.writeFile("proxies.txt", text, (err) => {
-    });
-  } catch (error) {
-  }
-  event.sender.send(`SAVED_PROXY_LIST`);
-};
-const readAccountList = async (event, directory) => {
-  try {
-    if (directory == "" || !directory) {
-      directory = app.isPackaged ? path.join(process.resourcesPath, "..", "bin", "UserDataSaves", "Accounts") : path.join(__dirname, "../bin/UserDataSaves/Accounts");
-    }
-    if (!fs.existsSync(directory)) {
-      fs.mkdirSync(directory, { recursive: true });
-    }
-    let fileList = await fs.promises.readdir(directory);
-    fileList.sort((a, b) => {
-      const numA = parseInt(a, 10) || 0;
-      const numB = parseInt(b, 10) || 0;
-      return numA - numB;
-    });
-    let str = fileList.join(",");
-    await fs.promises.writeFile("accounts.txt", str);
-    let result = await fs.promises.readFile("accounts.txt", "utf8");
-    event.sender.send(`READ_ACCOUNT_LIST`, result);
-    return result;
-  } catch (err) {
-    console.error("Error: ", err);
-  }
-};
-const saveAccountList = async (event, directory, text) => {
-  if (directory == "") {
-    directory = app.isPackaged ? path.join(process.resourcesPath, "..", "bin", "UserDataSaves", "Accounts") : path.join(__dirname, "../bin/UserDataSaves/Accounts");
-  }
-  directory = join(directory, text);
-  try {
-    fs.mkdirSync(directory, { recursive: true });
-  } catch (error) {
-    console.log(error);
-  }
-  event.sender.send(`SAVED_ACCOUNT_LIST`);
-};
 class launchBrowser {
   constructor(name, browserPath, profilePath, url) {
     __publicField(this, "name");
@@ -312,6 +257,12 @@ const getPath = () => {
     return [];
   }
 };
+const deleteProfile = async (_event, folderPath) => {
+  try {
+    fs.rmSync(folderPath, { recursive: true, force: true });
+  } catch (error) {
+  }
+};
 ipcMain.handle("get-path", async (event) => {
   let result = await getPath();
   return result;
@@ -333,46 +284,6 @@ ipcMain.handle("read-tasks", async (event, result) => {
   result = await readTasks(event);
   return result;
 });
-ipcMain.handle("save-proxy-list", async (event, text) => {
-  await saveProxyList(event, text);
-});
-ipcMain.handle("read-proxy-list", async (event, result) => {
-  result = await readProxyList(event);
-  return result;
-});
-ipcMain.handle("save-profile-list", async (event, text) => {
-  await saveProfileList(event, text);
-});
-ipcMain.handle("read-profile-list", async (event, result) => {
-  result = await readProfileList(event);
-  return result;
-});
-ipcMain.handle("save-account-list", async (event, path2, text) => {
-  await saveAccountList(event, path2, text);
-});
-ipcMain.handle("read-account-list", async (event, path2) => {
-  let result = await readAccountList(event, path2);
-  return result;
-});
-ipcMain.handle("save-masteraccount-list", async (event, path2, text) => {
-  await saveMasterAccountList(event, path2, text);
-});
-ipcMain.handle("read-masteraccount-list", async (event, path2) => {
-  let result = await readMasterAccountList(event, path2);
-  return result;
-});
-ipcMain.handle("get-product", async (event, num, sku, url) => {
-  let r = await getProduct(event, num, sku, url);
-  return r;
-});
-ipcMain.handle("get-feed", async (event) => {
-  let r = await getFeed(event);
-  return r;
-});
-ipcMain.handle("check-stock", async (event, sku, channelId, size, loop) => {
-  let r = await checkStock(event, sku, channelId, size, loop);
-  return r;
-});
 ipcMain.handle("manual-browser", async (event, url, browserPath, profilePath, name) => {
   console.log("manual-browser: ", browserPath);
   let r = await manualBrowser(event, url, browserPath, profilePath, name);
@@ -390,12 +301,8 @@ ipcMain.handle("kill-browsers", async (event, pid) => {
   let r = await killBrowsers(event, pid);
   return r;
 });
-ipcMain.handle("master-browser", async (event, cpd, index, browserWidth, browserHeight, browserPath) => {
-  let r = await masterBrowser(event, cpd, index, browserWidth, browserHeight, browserPath);
-  return r;
-});
-ipcMain.handle("get-status", async (event, pid, oldStatus) => {
-  let r = await getStatus(event, pid, oldStatus);
+ipcMain.handle("delete-profile", async (event, folderPath) => {
+  let r = await deleteProfile(event, folderPath);
   return r;
 });
 export {

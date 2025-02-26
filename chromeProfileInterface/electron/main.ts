@@ -3,6 +3,7 @@ import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import { spawn, execSync } from 'node:child_process'
+import fs from 'fs'
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -29,6 +30,8 @@ let win: BrowserWindow | null
 
 function createWindow() {
   win = new BrowserWindow({
+    minHeight: 256,
+    minWidth: 390,
     width: 800,
     height: 600,
     frame: false,
@@ -539,7 +542,13 @@ const getPath = () => {
 }
 
 
+const deleteProfile = async (_event: Electron.IpcMainInvokeEvent, folderPath: string) => {
+  try {
+    fs.rmSync(folderPath, { recursive: true, force: true })
+  } catch (error) {
 
+  }
+}
 
 
 
@@ -589,60 +598,7 @@ ipcMain.handle('read-tasks', async (event, result) => {
   return result
 })
 
-// SAVE PROXY LIST
-ipcMain.handle('save-proxy-list', async (event, text) => {
-  await saveProxyList(event, text)
-})
-ipcMain.handle('read-proxy-list', async (event, result) => {
-  result = await readProxyList(event)
-  return result
-})
 
-// SAVE PROFILE LIST
-ipcMain.handle('save-profile-list', async (event, text) => {
-  await saveProfileList(event, text)
-})
-ipcMain.handle('read-profile-list', async (event, result) => {
-  result = await readProfileList(event)
-  return result
-})
-
-// SAVE ACCOUNT LIST
-ipcMain.handle('save-account-list', async (event, path, text) => {
-  await saveAccountList(event, path, text)
-})
-ipcMain.handle('read-account-list', async (event, path) => {
-  let result = await readAccountList(event, path)
-  return result
-})
-
-// SAVE MASTER ACCOUNT LIST
-ipcMain.handle('save-masteraccount-list', async (event, path, text) => {
-  await saveMasterAccountList(event, path, text)
-})
-ipcMain.handle('read-masteraccount-list', async (event, path) => {
-  let result = await readMasterAccountList(event, path)
-  return result
-})
-
-// GET PRODUCT
-ipcMain.handle('get-product', async (event, num, sku, url) => {
-  let r = await getProduct(event, num, sku, url)
-  return r
-})
-
-// GET FEED
-ipcMain.handle('get-feed', async (event) => {
-  let r = await getFeed(event)
-  return r
-})
-
-
-// CHECK PRODUCT STOCK
-ipcMain.handle('check-stock', async (event, sku, channelId, size, loop) => {
-  let r = await checkStock(event, sku, channelId, size, loop)
-  return r
-});
 
 
 
@@ -669,12 +625,8 @@ ipcMain.handle('kill-browsers', async (event, pid) => {
   return r
 })
 
-ipcMain.handle('master-browser', async (event, cpd, index, browserWidth, browserHeight, browserPath) => {
-  let r = await masterBrowser(event, cpd, index, browserWidth, browserHeight, browserPath)
+ipcMain.handle('delete-profile', async (event, folderPath) => {
+  let r = await deleteProfile(event, folderPath)
   return r
 })
 
-ipcMain.handle('get-status', async (event, pid, oldStatus) => {
-  let r = await getStatus(event, pid, oldStatus)
-  return r
-})

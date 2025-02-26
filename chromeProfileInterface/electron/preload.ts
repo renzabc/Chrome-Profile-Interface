@@ -88,6 +88,13 @@ contextBridge.exposeInMainWorld('tasks', {
     let r = ipcRenderer.invoke('kill-browsers', pid)
     ipcRenderer.once('KILL_BROWSERS ${}', async () => {
     })
+    // return r;
+  },
+
+  deleteProfile: async (folderPath: string) => {
+    let r = ipcRenderer.invoke('delete-profile', folderPath)
+    ipcRenderer.once('DELETE_PROFILE ${}', async () => {
+    })
     return r;
   },
 
