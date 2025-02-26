@@ -32,10 +32,11 @@ electron.contextBridge.exposeInMainWorld(`thiswindow`, {
   }
 });
 electron.contextBridge.exposeInMainWorld("system", {
-  startCLKR: async () => {
-    electron.ipcRenderer.invoke("start-clkr");
-    electron.ipcRenderer.once("START_CLKR", () => {
+  getPath: async () => {
+    let r = electron.ipcRenderer.invoke("get-path");
+    electron.ipcRenderer.once("GET_PATH", (_, result) => {
     });
+    return r;
   },
   openFolder: async (directory, master) => {
     electron.ipcRenderer.invoke("open-folder", directory, master);
@@ -65,17 +66,6 @@ electron.contextBridge.exposeInMainWorld("system", {
     return r;
   }
 });
-electron.contextBridge.exposeInMainWorld(`thiswindow`, {
-  minimize: async () => {
-    electron.ipcRenderer.invoke("minimize-window");
-  },
-  maximize: async () => {
-    electron.ipcRenderer.invoke("maximize-window");
-  },
-  close: async () => {
-    electron.ipcRenderer.invoke("close-window");
-  }
-});
 electron.contextBridge.exposeInMainWorld("tasks", {
   manualBrowser: async (url, browserPath, profilePath, profileNum) => {
     let r = electron.ipcRenderer.invoke("manual-browser", url, browserPath, profilePath, profileNum);
@@ -83,8 +73,8 @@ electron.contextBridge.exposeInMainWorld("tasks", {
     });
     return r;
   },
-  killBrowsers: async (pid, autoEnabled) => {
-    let r = electron.ipcRenderer.invoke("kill-browsers", pid, autoEnabled);
+  killBrowsers: async (pid) => {
+    let r = electron.ipcRenderer.invoke("kill-browsers", pid);
     electron.ipcRenderer.once("KILL_BROWSERS ${}", async () => {
     });
     return r;

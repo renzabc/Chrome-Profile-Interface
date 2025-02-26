@@ -37,10 +37,11 @@ contextBridge.exposeInMainWorld(`thiswindow`, {
 })
 
 contextBridge.exposeInMainWorld('system', {
-  startCLKR: async () => {
-    ipcRenderer.invoke('start-clkr')
-    ipcRenderer.once('START_CLKR', () => {
+  getPath: async () => {
+    let r = ipcRenderer.invoke('get-path')
+    ipcRenderer.once('GET_PATH', (_, result) => {
     })
+    return r
   },
 
   openFolder: async (directory: string, master: boolean) => {
@@ -74,18 +75,6 @@ contextBridge.exposeInMainWorld('system', {
   }
 })
 
-contextBridge.exposeInMainWorld(`thiswindow`, {
-  minimize: async () => {
-    ipcRenderer.invoke('minimize-window')
-  },
-  maximize: async () => {
-    ipcRenderer.invoke('maximize-window')
-  },
-  close: async () => {
-    ipcRenderer.invoke('close-window')
-  }
-})
-
 contextBridge.exposeInMainWorld('tasks', {
   manualBrowser: async (url: string, browserPath: string, profilePath: string, profileNum: string) => {
     let r = ipcRenderer.invoke('manual-browser', url, browserPath, profilePath, profileNum)
@@ -95,8 +84,8 @@ contextBridge.exposeInMainWorld('tasks', {
     return r;
   },
 
-  killBrowsers: async (pid: number, autoEnabled: boolean) => {
-    let r = ipcRenderer.invoke('kill-browsers', pid, autoEnabled)
+  killBrowsers: async (pid: number) => {
+    let r = ipcRenderer.invoke('kill-browsers', pid)
     ipcRenderer.once('KILL_BROWSERS ${}', async () => {
     })
     return r;

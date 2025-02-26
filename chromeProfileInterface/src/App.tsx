@@ -1,20 +1,31 @@
-import { ChangeEvent, ReactElement, useState } from 'react'
+import { ChangeEvent, ReactElement, useEffect, useState } from 'react'
 import './App.css'
 
 function App() {
   // Define Type for Profile or else there will be errors when array is empty and types cannot be assumed
   interface Profile {
-    name: string;
-    icon: ReactElement;
-    exePath: string;
-    folderPath: string;
-    pid: number;
+    name: string
+    icon: ReactElement
+    exePath: string
+    folderPath: string
+    pid: number
+    delete: boolean
   }
 
   const [availableNumbers, setAvailableNumbers] = useState<Set<number>>(new Set())
   const [browserArray, setBrowserArray] = useState([{ name: 'chrome' }])
   const [profileArray, setProfileArray] = useState<Profile[]>([])
   const [launchUrl, setLaunchUrl] = useState('')
+  const [browserPath, setBrowserPath] = useState([])
+
+  useEffect(() => {
+    let findPath = async () => {
+      let path = await system.getPath()
+      console.log(path)
+      setBrowserPath(path)
+    }
+    findPath()
+  }, [])
 
   const getSmallestNumber = (): number => {
     if (availableNumbers.size > 0) {
@@ -78,15 +89,17 @@ function App() {
         icon: <></>,
         exePath: '',
         folderPath: '',
-        pid: 0
+        pid: 0,
+        delete: false
       }
       if (browserType == 'chrome') {
         newProfile = {
           name: String(number),
           icon: icon(100, 100, browserType),
-          exePath: String.raw`C:\Program Files\Google\Chrome\Application\chrome.exe`.replace("\\", "\\\\"),
+          exePath: String.raw`${browserPath[0]}`.replace("\\", "\\\\"),
           folderPath: String.raw`C:\Users\Renz\Desktop\Test Folder`,
-          pid: 0
+          pid: 0,
+          delete: false
         }
         console.log("exePath: ", newProfile.exePath)
       }
@@ -94,26 +107,31 @@ function App() {
         newProfile = {
           name: String(number),
           icon: icon(100, 100, browserType),
-          exePath: String.raw`C:\Program Files\Google\Chrome\Application\chrome.exe`,
+          exePath: String.raw`${browserPath[1]}`.replace("\\", "\\\\"),
           folderPath: String.raw`C:\Users\Renz\Desktop\Test Folder`,
-          pid: 0
+          pid: 0,
+          delete: false
         }
       }
       else if (browserType == 'brave') {
         newProfile = {
           name: String(number),
           icon: icon(100, 100, browserType),
-          exePath: String.raw``,
+          exePath: String.raw`${browserPath[2]}`.replace("\\", "\\\\"),
           folderPath: String.raw`C:\Users\Renz\Desktop\Test Folder`,
-          pid: 0
+          pid: 0,
+          delete: false
         }
+      }
+      else {
+        return [...prevArray]
       }
       return [...prevArray, newProfile]
     })
   }
 
-  let browserButtons = browserArray.map((browser) => {
-    if (browser.name == 'chrome') {
+  let browserButtons = browserPath.map((path) => {
+    if (String(path).includes('chrome.exe')) {
       return (
         <button title='Create Chrome Profile' className='p-1 flex flex-row bg-white hover:bg-green-100 rounded-lg'
           onClick={() => handleAddProfile('chrome')}
@@ -127,7 +145,7 @@ function App() {
 
       )
     }
-    else if (browser.name == 'edge') {
+    else if (String(path).includes('msedge.exe')) {
       return (
         <button title='Create Edge Profile' className='p-1 flex flex-row bg-white hover:bg-green-100 rounded-lg'
           onClick={() => handleAddProfile('edge')}
@@ -141,9 +159,9 @@ function App() {
 
       )
     }
-    else if (browser.name == 'brave') {
+    else if (String(path).includes('brave.exe')) {
       return (
-        <button title='Create Edge Profile' className='p-1 flex flex-row bg-white hover:bg-green-100 rounded-lg'
+        <button title='Create Brave Profile' className='p-1 flex flex-row bg-white hover:bg-green-100 rounded-lg'
           onClick={() => handleAddProfile('brave')}
         >
           {icon(22, 22, 'brave')}
@@ -171,9 +189,14 @@ function App() {
 
       <div className='flex flex-row justify-between p-1'>
         <button title='Delete Profile'
-
+          onClick={async () => {
+            if (profile.delete == true)
+              try {
+                await tasks.deleteProfile(profile.pid)
+              } catch (error) { }
+          }}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
+          <svg className='hover:fill-black' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
             <path d="M4 7l16 0"></path>
             <path d="M10 11l0 6"></path>
             <path d="M14 11l0 6"></path>
@@ -183,21 +206,30 @@ function App() {
         </button>
 
         <button title='Kill Process'
-          onClick={async (pid: number) => {
+          onClick={async () => {
             try {
               await tasks.killBrowsers(profile.pid)
+              profile.pid = 0
             } catch (error) { }
           }}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
+          <svg className='hover:fill-red-500' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
             <path d="M5 5m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z"></path>
           </svg>
         </button>
 
         <button title='Launch Browser'
-          onClick={async () => { profile.pid = await tasks.manualBrowser(launchUrl, profile.exePath, profile.folderPath, profile.name); console.log(profile.pid) }}
+          onClick={async () => {
+            if (profile.pid == 0) {
+              profile.pid = await tasks.manualBrowser(launchUrl, profile.exePath, profile.folderPath, profile.name)
+            }
+            else {
+              await tasks.manualBrowser(launchUrl, profile.exePath, profile.folderPath, profile.name)
+            }
+          }
+          }
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
+          <svg className='hover:fill-green-500' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
             <path d="M7 4v16l13 -8z"></path>
           </svg>
         </button>
@@ -220,7 +252,7 @@ function App() {
         {/* Title Bar */}
         <div className='titleBar flex flex-row gap-1 justify-end bg-neutral-800 '>
           {/* Add Browser Profile Button(s) */}
-          <div className='p-1'>
+          <div className='flex flex-row gap-1 p-1'>
             {browserButtons}
           </div>
           <div className='flex grow justify-center'>

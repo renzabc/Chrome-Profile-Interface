@@ -5,7 +5,7 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import { spawn } from "node:child_process";
+import { execSync, spawn } from "node:child_process";
 createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 process.env.APP_ROOT = path.join(__dirname, "..");
@@ -267,6 +267,7 @@ let spawnBrowser = (name, browserPath, profilePath, url) => {
     "--hide-crash-restore-bubble",
     "--disable-sync",
     `--no-default-browser-check`,
+    "--proxy-server=185.221.217.128:48365",
     `${url}`
   ];
   let chrome = spawn(
@@ -285,12 +286,36 @@ const manualBrowser = async (_event, url, browserPath, profilePath, name) => {
   slaveCDP = await Promise.all(currentTasks);
   return slaveCDP[0];
 };
-const killBrowsers = async (_event, taskId) => {
-  try {
-    process.kill(taskId);
-  } catch (error) {
+const killBrowsers = async (_event, pid) => {
+  if (pid != 0) {
+    try {
+      await process.kill(pid);
+      return true;
+    } catch (error) {
+      return true;
+    }
   }
 };
+const getPath = () => {
+  try {
+    const commandChrome = `reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe" /ve`;
+    const commandEdge = `reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\msedge.exe" /ve`;
+    const commandBrave = `reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\brave.exe" /ve`;
+    const outputChrome = execSync(commandChrome, { encoding: "utf-8" });
+    const outputEdge = execSync(commandEdge, { encoding: "utf-8" });
+    const outputBrave = execSync(commandBrave, { encoding: "utf-8" });
+    const matchChrome = outputChrome.match(/REG_SZ\s+([^\r\n]+)/);
+    const matchEdge = outputEdge.match(/REG_SZ\s+([^\r\n]+)/);
+    const matchBrave = outputBrave.match(/REG_SZ\s+([^\r\n]+)/);
+    return [matchChrome ? matchChrome[1].trim() : null, matchEdge ? matchEdge[1].trim() : null, matchBrave ? matchBrave[1].trim() : null];
+  } catch (error) {
+    return [];
+  }
+};
+ipcMain.handle("get-path", async (event) => {
+  let result = await getPath();
+  return result;
+});
 ipcMain.handle("open-folder", async (event, directory, master) => {
   await openFolder(event, directory, master);
 });
@@ -361,7 +386,7 @@ ipcMain.handle("automated-browser", async (event, url, browserPath, taskNumber, 
   let r = await automatedBrowser(event, url, browserPath, taskNumber, screenWidth, screenHeight, colDivision, rowDivision, browserWidth, browserHeight);
   return r;
 });
-ipcMain.handle("kill-browsers", async (event, pid, autoEnabled) => {
+ipcMain.handle("kill-browsers", async (event, pid) => {
   let r = await killBrowsers(event, pid);
   return r;
 });

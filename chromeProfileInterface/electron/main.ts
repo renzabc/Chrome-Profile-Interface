@@ -2,7 +2,7 @@ import { app, BrowserWindow, Menu, ipcMain } from 'electron'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
-import { spawn } from 'node:child_process'
+import { spawn, execSync } from 'node:child_process'
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -454,6 +454,7 @@ let spawnBrowser = (name: string, browserPath: string, profilePath: string, url:
     '--hide-crash-restore-bubble',
     '--disable-sync',
     `--no-default-browser-check`,
+    '--proxy-server=185.221.217.128:48365',
     `${url}`
   ]
 
@@ -506,10 +507,35 @@ const manualBrowser = async (_event: Electron.IpcMainInvokeEvent, url: string, b
   return slaveCDP[0]
 }
 
-const killBrowsers = async (_event: Electron.IpcMainInvokeEvent, taskId: number) => {
+const killBrowsers = async (_event: Electron.IpcMainInvokeEvent, pid: number) => {
+  if (pid != 0) {
+    try {
+      await process.kill(pid)
+      return true
+    } catch (error) { return true }
+  }
+
+}
+
+
+
+
+
+const getPath = () => {
   try {
-    process.kill(taskId)
-  } catch (error) { }
+    const commandChrome = `reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe" /ve`
+    const commandEdge = `reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\msedge.exe" /ve`
+    const commandBrave = `reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\brave.exe" /ve`
+    const outputChrome = execSync(commandChrome, { encoding: "utf-8" })
+    const outputEdge = execSync(commandEdge, { encoding: "utf-8" });
+    const outputBrave = execSync(commandBrave, { encoding: "utf-8" })
+    const matchChrome = outputChrome.match(/REG_SZ\s+([^\r\n]+)/)
+    const matchEdge = outputEdge.match(/REG_SZ\s+([^\r\n]+)/)
+    const matchBrave = outputBrave.match(/REG_SZ\s+([^\r\n]+)/)
+    return [matchChrome ? matchChrome[1].trim() : null, matchEdge ? matchEdge[1].trim() : null, matchBrave ? matchBrave[1].trim() : null]
+  } catch (error) {
+    return []
+  }
 }
 
 
@@ -535,13 +561,10 @@ const killBrowsers = async (_event: Electron.IpcMainInvokeEvent, taskId: number)
 
 
 
-
-
-
-
-
-
-
+ipcMain.handle('get-path', async (event,) => {
+  let result = await getPath()
+  return result
+})
 
 
 // OPEN FOLDER
@@ -641,8 +664,8 @@ ipcMain.handle('automated-browser', async (event, url, browserPath, taskNumber, 
   return r
 })
 
-ipcMain.handle('kill-browsers', async (event, pid, autoEnabled) => {
-  let r = await killBrowsers(event, pid, autoEnabled)
+ipcMain.handle('kill-browsers', async (event, pid) => {
+  let r = await killBrowsers(event, pid)
   return r
 })
 
